@@ -194,15 +194,14 @@ module sample #(
 
   logic [11:0] counter;
   logic prev_en;
-  always_ff @(posedge clk or posedge rst) begin
+  always_ff @(posedge clk, posedge rst) begin
     if (rst) 
       counter <= 12'b0;
     else begin
       prev_en <= enable;
-      
       if (prev_en && enable) begin
         counter <= counter + 1; 
-        if (counter == SAMPLE_LEN - 1) 
+        if (counter == SAMPLE_LEN) 
           counter <= 12'b0;
       end else if (prev_en && ~enable)
         counter <= 12'b0;
