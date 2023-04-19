@@ -122,9 +122,9 @@ module sequencer (
     if (srst)
       next_seq_out = 8'h80;
     else if (go_left)
-      next_seq_out = seq_out << 1;
+      next_seq_out = {seq_out[6:0], seq_out[7]};
     else if (go_right)
-      next_seq_out = seq_out >> 1;
+      next_seq_out = {seq_out[0], seq_out[7:1]};
     else
       next_seq_out = seq_out;
   end
@@ -140,16 +140,12 @@ module sequence_editor (
 );
   
   logic [3:0] seq_smpl [7:0];
-  always_ff @ (posedge clk) begin
-    seq_smpl_1 <= seq_smpl[0];
-    seq_smpl_2 <= seq_smpl[1];
-    seq_smpl_3 <= seq_smpl[2];
-    seq_smpl_4 <= seq_smpl[3];
-    seq_smpl_5 <= seq_smpl[4];
-    seq_smpl_6 <= seq_smpl[5];
-    seq_smpl_7 <= seq_smpl[6];
-    seq_smpl_8 <= seq_smpl[7];
-  end
+  
+  assign {seq_smpl_8, seq_smpl_7, seq_smpl_6, seq_smpl_5, 
+          seq_smpl_4, seq_smpl_3, seq_smpl_2, seq_smpl_1} 
+          = {seq_smpl[7], seq_smpl[6], seq_smpl[5], seq_smpl[4], 
+          seq_smpl[3], seq_smpl[2], seq_smpl[1], seq_smpl[0]};
+
   integer i;
   always_ff @ (posedge clk, posedge rst) begin
     if (rst) begin
