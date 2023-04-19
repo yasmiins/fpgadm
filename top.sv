@@ -181,9 +181,10 @@ module pwm (
 endmodule
 
 module sample #(
-  parameter SAMPLE_FILE = "kick.mem",
+  parameter SAMPLE_FILE = "../audio/kick.mem",
   parameter SAMPLE_LEN = 4000
-)(
+)
+(
   input clk, rst, enable,
   output logic [7:0] out
 );
@@ -191,9 +192,9 @@ module sample #(
   logic [7:0] audio_mem [4095:0];
   initial $readmemh(SAMPLE_FILE, audio_mem, 0, SAMPLE_LEN);
 
-  logic counter [11:0];
+  logic [11:0] counter;
   logic prev_en;
-  always_ff @(posedge clk, posedge rst) begin
+  always_ff @(posedge clk or posedge rst) begin
     if (rst) 
       counter <= 12'b0;
     else begin
@@ -201,12 +202,10 @@ module sample #(
       
       if (prev_en && enable) begin
         counter <= counter + 1; 
-      
         if (counter == SAMPLE_LEN - 1) 
           counter <= 12'b0;
-      end else if (prev_en && ~enable) begin
-                counter <= 12'b0;
-      end
+      end else if (prev_en && ~enable)
+        counter <= 12'b0;
     end
   end
 
@@ -214,6 +213,7 @@ module sample #(
       out <= audio_mem[counter];
   end
 endmodule
+
 
 module controller (
     input clk, rst,
