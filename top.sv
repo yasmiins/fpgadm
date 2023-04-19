@@ -113,8 +113,11 @@ module sequencer (
   
   always_ff @ (posedge clk, posedge rst) begin
     if (rst)
-      seq_out <= 8'h0;
+      seq_out <= 8'h80;
+    else
+      seq_out <= next_seq_out;
   end
+  
   always_comb begin
     if (srst)
       next_seq_out = 8'h80;
@@ -153,10 +156,9 @@ module sequence_editor (
       for (i = 0; i < 8; i++) begin
         seq_smpl[i] <= 4'b0;
       end
-    end
-    else begin
+    end else begin
       if (mode == 2'd0)
-        seq_smpl[set_time_idx] <= seq_smpl[set_time_idx] ^ (tgl_play_smpl & {4{tgl_play_smpl != 4'b0}});;
+        seq_smpl[set_time_idx] <= seq_smpl[set_time_idx] ^ tgl_play_smpl;
     end
   end
 endmodule
@@ -195,7 +197,7 @@ module sample #(
 
   logic counter [11:0];
   logic prev_en;
-  always_ff @(posedge clk or posedge rst) begin
+  always_ff @(posedge clk, posedge rst) begin
     if (rst) 
       counter <= 12'b0;
     else begin
@@ -225,7 +227,7 @@ module controller (
 
     typedef enum logic [1:0] { EDIT = 2'd0, PLAY = 2'd1, RAW = 2'd2 } sysmode_t;
 
-    always_ff @(posedge clk or posedge rst) begin
+    always_ff @(posedge clk, posedge rst) begin
         if (rst) begin
             mode <= EDIT;
         end else begin
