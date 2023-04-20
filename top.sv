@@ -1,9 +1,8 @@
-`default_nettype none
-
 module top (
   // I/O ports
-  input  logic hz100, reset,
+  input  logic hz2m, hz100, reset,
   input  logic [20:0] pb,
+  /* verilator lint_off UNOPTFLAT */
   output logic [7:0] left, right,
          ss7, ss6, ss5, ss4, ss3, ss2, ss1, ss0,
   output logic red, green, blue,
@@ -29,16 +28,16 @@ module top (
   logic [7:0] edit_seq_out;
   logic [2:0] ctr_out;
   logic [3:0] edit_play_smpl [7:0];
-  logic hz2;
+  logic bpm_clk;
   logic [7:0] play_seq_out;
   logic [2:0] seq_sel;
   logic [7:0] seq_out;
   
-  clkdiv divhz2 (.clk(hz2m), .rst(reset), .lim(8'b00011000), .hzX(hz2));
+  clkdiv #(20) divhz2 (.clk(hz2m), .rst(reset), .lim(20'd499999), .hzX(bpm_clk));
   sequencer edit (.clk(strobe), .rst(reset), .srst(mode != 2'd0), .go_right(pb[8]), .go_left(pb[11]), .seq_out(edit_seq_out));
   prienc8to3 enc (.in(edit_seq_out), .out(ctr_out));
 
-  sequencer play (.clk(hz2), .rst(reset), .srst(mode != 2'd1), .go_right(1'b1), .go_left(1'b0), .seq_out(play_seq_out));
+  sequencer play (.clk(bpm_clk), .rst(reset), .srst(mode != 2'd1), .go_right(1'b1), .go_left(1'b0), .seq_out(play_seq_out));
   
   always_ff @(posedge hz2m, posedge reset) begin
     if (reset) begin
@@ -65,7 +64,39 @@ module top (
   
   assign {left[7], left[5], left[3], left[1], 
           right[7], right[5], right[3], right[1]} = seq_out;
-          
+  logic prev_bpm_clk;
+  logic [31:0] enable_ctr;
+  always_ff @(posedge hz2m, posedge reset)
+  if (reset) begin
+    prev_bpm_clk <= 0;
+    enable_ctr <= 0;
+  end
+  // otherwise, if we're in PLAY mode
+  else if (mode == 2'd2) begin
+    // if we're on a rising edge of bpm_clk, indicating 
+    // the beginning of the beat, reset the counter.
+    if (~prev_bpm_clk && bpm_clk) begin
+    enable_ctr <= 0;
+    prev_bpm_clk <= 1;
+    end
+    // if we're on a falling edge of bpm_clk, indicating 
+    // the middle of the beat, set the counter to half its value
+    // to correct for drift.
+    else if (prev_bpm_clk && ~bpm_clk) begin
+      enable_ctr <= 499999;
+      prev_bpm_clk <= 0;
+    end
+    // otherwise count to 1 million, and reset to 0 when that value is reached.
+    else begin
+      enable_ctr <= (enable_ctr == 999999) ? 0 : enable_ctr + 1;
+    end
+  end
+  // reset the counter so we start on time again.
+  else begin
+    prev_bpm_clk <= 0;
+    enable_ctr <= 0;
+  end
+
   logic [3:0] raw_play_smpl;
   assign raw_play_smpl = pb[3:0];
   
@@ -76,11 +107,83 @@ module top (
     else begin
       case (mode)
         2'd0: play_smpl <= 4'b0;
-        2'd1: play_smpl <= edit_play_smpl | raw_play_smpl;
+        2'd1: play_smpl <= ((enable_ctr <= 900000) ? edit_play_smpl[seq_sel] : 4'b0) | raw_play_smpl;
         2'd2: play_smpl <= raw_play_smpl;
+        default: play_smpl <= 4'b0;
       endcase
     end
   end
+  
+  logic mhz16;
+  logic [7:0] sample_data [3:0];
+  
+  clkdiv #(20) sample_clk (.clk(hz2m), .rst(reset), .lim(20'd128), .hzX(mhz16));
+  sample #(
+    .SAMPLE_FILE("../audio/kick.mem"),
+    .SAMPLE_LEN(4000)
+  ) sample_kick (
+    .clk(mhz16),
+    .rst(reset),
+    .enable(play_smpl[3]),
+    .out(sample_data[0])
+  );
+
+  sample #(
+    .SAMPLE_FILE("../audio/clap.mem"),
+    .SAMPLE_LEN(4000)
+  ) sample_clap (
+    .clk(mhz16),
+    .rst(reset),
+    .enable(play_smpl[2]),
+    .out(sample_data[1])
+  );
+  
+  sample #(
+    .SAMPLE_FILE("../audio/hihat.mem"),
+    .SAMPLE_LEN(4000)
+  ) sample_hihat (
+    .clk(mhz16),
+    .rst(reset),
+    .enable(play_smpl[1]),
+    .out(sample_data[2])
+  );
+ 
+  sample #(
+    .SAMPLE_FILE("../audio/snare.mem"),
+    .SAMPLE_LEN(4000)
+  ) sample_snare (
+    .clk(mhz16),
+    .rst(reset),
+    .enable(play_smpl[0]),
+    .out(sample_data[3])
+  );
+  
+  logic [7:0] sample_sum1, sample_sum2, final_sum;
+  
+  always_comb begin
+      sample_sum1 = sample_data[0] + sample_data[1];
+      sample_sum2 = sample_data[2] + sample_data[3];
+  	
+      if (sample_data[0][7] == 1 && sample_data[1][7] == 1 && sample_sum1[7] == 0)
+          sample_sum1 = -128;
+      else if (sample_data[0][7] == 0 && sample_data[1][7] == 0 && sample_sum1[7] == 1)
+  	  sample_sum2 = 127;
+  		
+      if (sample_data[2][7] == 1 && sample_data[3][7] == 1 && sample_sum2[7] == 0)
+          sample_sum1 = -128;
+      else if (sample_data[2][7] == 0 && sample_data[3][7] == 0 && sample_sum2[7] == 1)
+  	  sample_sum2 = 127;
+  
+      final_sum = sample_sum1 + sample_sum2;
+      if (sample_sum1[7] == 1 && sample_sum2[7] == 1 && final_sum[7] == 0)
+          sample_sum1 = -128;
+      else if (sample_sum1[7] == 0 && sample_sum2[7] == 0 && final_sum[7] == 1)
+  	  sample_sum2 = 127;
+      final_sum = ((final_sum) ^ 8'd128) >> 2;
+  end
+  
+  pwm #(64) pwm_inst (.clk(hz2m), .rst(reset), .enable(1'b1), .duty_cycle(final_sum[5:0]), .counter(), .pwm_out(right[0]));
+
 endmodule
 
 module scankey (
@@ -108,20 +211,22 @@ module scankey (
   assign strobe = delay[1];
 endmodule
 
-module clkdiv (
-  input logic clk, rst, 
-  input logic [7:0] lim, 
-  output logic hzX
+module clkdiv #(
+    parameter BITLEN = 8
+) (
+    input logic clk, rst, 
+    input logic [BITLEN-1:0] lim,
+    output logic hzX
 );
 
-  logic [7:0] ctr;
+  logic [BITLEN-1:0] ctr;
   logic hz;
-  logic [7:0] next_ctr; // next-state values
+  logic [BITLEN-1:0] next_ctr; // next-state values
 
   always_ff @ (posedge clk, posedge rst) begin
     if (rst) begin
-      hz <= 1'b0;
-      ctr <= 8'b0;
+      hz <= 0;
+      ctr <= 0;
     end else begin
       hz <= ctr == lim;
       ctr <= next_ctr;
@@ -130,7 +235,7 @@ module clkdiv (
   
   always_ff @ (posedge hz, posedge rst) begin
     if (rst)
-      hzX <= 1'b0;
+      hzX <= 0;
     else
       hzX <= ~hzX;
   end
@@ -138,7 +243,7 @@ module clkdiv (
   // Counter
   always_comb begin // next-state equations
     if (ctr ==  lim) begin
-      next_ctr = 8'b0;
+      next_ctr = 0;
     end
     else begin
       next_ctr[0] = ~ctr[0];
@@ -224,24 +329,30 @@ module sequence_editor (
   end
 endmodule
 
-module pwm (
-  input logic clk, rst, enable,
-  input logic [7:0] duty_cycle,
-  output logic [7:0] counter,
-  output logic pwm_out
+
+module pwm #(
+    parameter int CTRVAL = 256,
+    parameter int CTRLEN = $clog2(CTRVAL)
+)
+(
+    input logic clk, rst, enable,
+    input logic [CTRLEN-1:0] duty_cycle,
+    output logic [CTRLEN-1:0] counter,
+    output logic pwm_out
 );
+        
 
   always_ff @(posedge clk, posedge rst) begin
     if (rst)
-      counter <= 8'b0;
+      counter <= 0;
     else begin
       if (enable)
         counter <= counter + 1;
     end
   end
   
-  assign pwm_out = (duty_cycle == 8'b11111111) ? 1'b1 : 
-                   (duty_cycle == 8'b0) ? 1'b0 : 
+  assign pwm_out = (duty_cycle == CTRLEN'(CTRVAL - 1)) ? 1 : 
+                   (duty_cycle == 0) ? 1 : 
                    (counter <= duty_cycle);
 endmodule
 
