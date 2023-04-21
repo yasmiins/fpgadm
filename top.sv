@@ -241,19 +241,12 @@ module clkdiv #(
   end
   
   // Counter
-  always_comb begin // next-state equations
+  always_comb begin
     if (ctr ==  lim) begin
       next_ctr = 0;
     end
     else begin
-      next_ctr[0] = ~ctr[0];
-      next_ctr[1] = ctr[1] ^ ctr[0];
-      next_ctr[2] = ctr[2] ^ (&(ctr[1:0]));
-      next_ctr[3] = ctr[3] ^ (&(ctr[2:0]));
-      next_ctr[4] = ctr[4] ^ (&(ctr[3:0]));
-      next_ctr[5] = ctr[5] ^ (&(ctr[4:0]));
-      next_ctr[6] = ctr[6] ^ (&(ctr[5:0]));
-      next_ctr[7] = ctr[7] ^ (&(ctr[6:0]));
+      next_ctr = ctr + 1;
     end
   end
 endmodule
