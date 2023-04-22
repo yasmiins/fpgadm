@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2023-04-22T00:20:24.317Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36" etag="Vs26sRkfTrnMpJc_jVCB" version="21.2.1" type="github" pages="8">
+<mxfile host="app.diagrams.net" modified="2023-04-22T00:24:26.980Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36" etag="TMZ3keYjZzk1D9aG-M0o" version="21.2.1" type="github" pages="8">
   <diagram name="scankey" id="wuZutpG0k2PEqG1eCoAN">
     <mxGraphModel dx="1850" dy="920" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -167,7 +167,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="Mz9ZX1-LD5Uo5QiGL3Cl" name="clkdiv">
-    <mxGraphModel dx="2150" dy="1267" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2150" dy="1168" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -404,7 +404,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="eqfyZoDokB0LB5MUFwm9" name="prienc8to3">
-    <mxGraphModel dx="1850" dy="-680" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1850" dy="-739" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -452,7 +452,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="OQlodY2pG6clUUfyFKE1" name="sequencer">
-    <mxGraphModel dx="1050" dy="920" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1050" dy="861" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -573,7 +573,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="rDjq0GkuQM2fVCpF1lQS" name="sequence_editor">
-    <mxGraphModel dx="3100" dy="1143" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="3100" dy="1059" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -679,7 +679,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="3K0G3vKbBH7wtxEbFcBX" name="pwm">
-    <mxGraphModel dx="2250" dy="920" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2250" dy="861" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -745,7 +745,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="-dfPj-cBvqlqj_TABgBP" name="sample">
-    <mxGraphModel dx="1050" dy="520" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1050" dy="461" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -805,7 +805,7 @@
           <mxGeometry x="674" y="310" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="FFESQWybrSnga4AwHevF-1" value="audio_mem" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;" vertex="1" parent="1">
-          <mxGeometry x="118" y="282" width="60" height="30" as="geometry" />
+          <mxGeometry x="55" y="300" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="FFESQWybrSnga4AwHevF-2" value="" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;" edge="1" parent="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
